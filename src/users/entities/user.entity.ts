@@ -1,6 +1,6 @@
 import { BaseEntity, Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity('USER')
+@Entity()
 export class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -16,9 +16,7 @@ export class User extends BaseEntity {
 }
   
 export enum StatusUser {
-  TRUE = `TRUE`,
-  FALSE = `FALSE`,
-  
+  OPEN = `OPEN`,
+  IN_PROGRESS = `IN_PROGRESS`,
+  DONE = `DONE`,
 }
-
-
