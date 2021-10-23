@@ -36,15 +36,16 @@ export class UserService {
   }
 
   async updateStatusUser(id: number, status: StatusUser): Promise<User> {
-    const USER = this.getUserByID(id);
-    (await USER).status = status;
-    (await USER).save();
+    const USER = await this.getUserByID(id);
+    USER.status = status;
+    USER.save();
     return USER
   }
+  
   async updatePasswordUser(id: number, password: string): Promise<User> {
-    const USER = this.getUserByID(id);
-    (await USER).password = password;
-    (await USER).save();
+    const USER = await this.getUserByID(id);
+    USER.password = password;
+    USER.save();
     return USER
   }
   async deleteUserById(id: number): Promise<void> {
