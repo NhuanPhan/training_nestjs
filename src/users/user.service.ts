@@ -1,18 +1,44 @@
 import { Injectable, NotFoundException, HttpException, HttpStatus } from '@nestjs/common';
 import { StatusUser, User } from './entities/user.entity';
 import { CreateUserDto } from './dto/user.dto'; 
+import { FilterDto } from './dto/user.filter.dto';
+
 
 @Injectable()
 export class UserService {
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const { username, password, status } = createUserDto;
+    const { username, password, type, status } = createUserDto;
     const user = new User();
     user.id = undefined;
     user.username = username;
     user.password = password;
+    user.type = type;
     user.status = status ;
     user.save();  
     return user
+  }
+
+  async getAllUser(): Promise<User[]> {
+    console.log('Get All')
+    return await User.find();
+  }
+
+  async getFilterUser(filterDto: FilterDto): Promise<User[]> {
+    const {status, search} = filterDto;
+
+    let user = await this.getAllUser();
+
+    if(status) {
+      user = user.filter( user => user.status === status );
+
+    }
+    if(search){
+      user = user.filter(user =>
+        user.username.includes(search) ||
+        user.type.includes(search),
+      );
+    }
+    return user;
   }
 
   async getUserByID(id: number): Promise<User> {
@@ -30,9 +56,6 @@ export class UserService {
         error: 'This is a error message',
       }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-  }
-  async getAllUser(): Promise<User[]> {
-    return await User.find();
   }
 
   async updateStatusUser(id: number, status: StatusUser): Promise<User> {

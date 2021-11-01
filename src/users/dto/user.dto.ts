@@ -9,6 +9,9 @@ export class CreateUserDto {
   password: string;
 
   @IsNotEmpty()
+  type: string;
+
+  @IsNotEmpty()
   status: StatusUser;
 
 }

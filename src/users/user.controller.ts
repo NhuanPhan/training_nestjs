@@ -3,6 +3,7 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/user.dto';
 import { StatusUser, User } from './entities/user.entity';
 import { StatusValidation } from './entities/validation status';
+import { FilterDto } from './dto/user.filter.dto';
 
 
 @Controller('user')
@@ -11,7 +12,12 @@ export class UserController {
 
   @Get()
   @UsePipes(ValidationPipe)
-  getAllUser(){
+  getUser(@Query() filterdto: FilterDto): Promise <User[]> {
+
+    if (Object.keys(filterdto).length){
+      return this.userService.getFilterUser(filterdto)
+    }
+    else
     return this.userService.getAllUser()
   }
 
