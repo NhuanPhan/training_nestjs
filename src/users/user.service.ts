@@ -1,11 +1,18 @@
 import { Injectable, NotFoundException, HttpException, HttpStatus } from '@nestjs/common';
 import { StatusUser, User } from './entities/user.entity';
 import { CreateUserDto } from './dto/user.dto'; 
-import { FilterDto } from './dto/user.filter.dto';
-
+import { Repository } from 'typeorm';
+import {paginate, Pagination, IPaginationOptions} from 'nestjs-typeorm-paginate';
+import { InjectRepository } from '@nestjs/typeorm';
+import {GetFilterDto } from './dto/user.filter.dto';
+// { FilterDto } from './dto/user.filter.dto';
 
 @Injectable()
 export class UserService {
+  constructor(
+		@InjectRepository(User) private userRepository: Repository<User>
+	) {}
+
   async create(createUserDto: CreateUserDto): Promise<User> {
     const { username, password, type, status } = createUserDto;
     const user = new User();
@@ -23,22 +30,22 @@ export class UserService {
     return await User.find();
   }
 
-  async getFilterUser(filterDto: FilterDto): Promise<User[]> {
+  async getFilterUser(filterDto: GetFilterDto): Promise<User[]> {
     const {status, search} = filterDto;
+    const query = User.createQueryBuilder('user')
 
-    let user = await this.getAllUser();
-
-    if(status) {
-      user = user.filter( user => user.status === status );
+  if(status) {
+    query.andWhere('user.status = :status', {status})
 
     }
-    if(search){
-      user = user.filter(user =>
-        user.username.includes(search) ||
-        user.type.includes(search),
-      );
-    }
-    return user;
+
+  if(search) {
+    query.andWhere('(user.username LIKE :search OR user.type LIKE :search)', {search: `${search}`});
+
+  }
+
+  const user = await query.getMany();
+  return user;
   }
 
   async getUserByID(id: number): Promise<User> {
@@ -57,7 +64,6 @@ export class UserService {
       }, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-
   async updateStatusUser(id: number, status: StatusUser): Promise<User> {
     const USER = await this.getUserByID(id);
     USER.status = status;

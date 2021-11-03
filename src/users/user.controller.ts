@@ -3,26 +3,25 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/user.dto';
 import { StatusUser, User } from './entities/user.entity';
 import { StatusValidation } from './entities/validation status';
-import { FilterDto } from './dto/user.filter.dto';
+import { Pagination } from 'nestjs-typeorm-paginate';
+import { GetFilterDto } from './dto/user.filter.dto';
 
 
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
 
+
   @Get()
   @UsePipes(ValidationPipe)
-  getUser(@Query() filterdto: FilterDto): Promise <User[]> {
-
-    if (Object.keys(filterdto).length){
-      return this.userService.getFilterUser(filterdto)
-    }
-    else
-    return this.userService.getAllUser()
+  getUser(@Query() filterDto: GetFilterDto){
+    return this.userService.getFilterUser(filterDto)
   }
+
 
   @Get(':id')
   getUserById(@Param('id', ParseIntPipe) id: number): Promise<User> {
+    console.log('co id')
     return this.userService.getUserByID(id);
   }
 
